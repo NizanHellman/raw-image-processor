@@ -21,26 +21,31 @@ def make_tarfile(output_filename, source_dir):
         tar.add(source_dir, arcname=os.path.basename(source_dir))
 
 
+def process_raw_file(raw_file, png_dir_name):
+    raw_file = os.path.join(PROJECT_PATH, 'data/example_frames', raw_file.strip())
+    raw_file_name = Path(raw_file).stem
+    with open(raw_file, 'rb') as raw_data_file:
+        raw_data = raw_data_file.read()
+        img_size = (1280, 720)
+        img = Image.frombytes('L', img_size, raw_data)
+        png_file_name = f'{raw_file_name}.png'
+        img.save(os.path.join(png_dir_name, png_file_name))
+        avg, std = get_image_statistics(raw_data)
+        frame_obj = {
+            'frame': png_file_name,
+            'average_pixel_value': avg,
+            'std_of_pixel_in_frame': std
+        }
+    return frame_obj
+
+
 def convert_to_png_and_get_statistics(raw_folder_path, list_of_raw_files):
     image_statistics = []
     png_dir_name = f'{raw_folder_path}_png'
     os.mkdir(os.path.join(PROJECT_PATH, 'data', png_dir_name))
     with open(list_of_raw_files, 'r') as raw_files:
         for raw_file in raw_files:
-            raw_file = os.path.join(PROJECT_PATH, 'data/example_frames', raw_file.strip())
-            raw_file_name = Path(raw_file).stem
-            with open(raw_file, 'rb') as raw_data_file:
-                raw_data = raw_data_file.read()
-                img_size = (1280, 720)
-                img = Image.frombytes('L', img_size, raw_data)
-                png_file_name = f'{raw_file_name}.png'
-                img.save(os.path.join(png_dir_name, png_file_name))
-                avg, std = get_image_statistics(raw_data)
-                image_statistics.append({
-                    'frame': png_file_name,
-                    'average_pixel_value': avg,
-                    'std_of_pixel_in_frame': std
-                })
+            image_statistics.append(process_raw_file(raw_file, png_dir_name))
 
     return image_statistics
 
