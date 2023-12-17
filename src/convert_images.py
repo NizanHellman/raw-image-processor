@@ -1,6 +1,7 @@
 import os.path
 import shutil
 import tarfile
+import tempfile
 import time
 from multiprocessing.dummy import Pool
 from pathlib import Path
@@ -8,8 +9,6 @@ from PIL import Image
 import numpy
 
 PROJECT_PATH = os.path.join(os.path.dirname(__file__), '../')
-TEMP_OUTPUT_FOLDER = 'example_frames_png'
-TEMP_OUTPUT_PATH = os.path.join(PROJECT_PATH, 'data', TEMP_OUTPUT_FOLDER)
 NUM_THREADS = 10
 
 
@@ -32,7 +31,7 @@ def process_raw_file(raw_data_file):
     img_size = (1280, 720)
     img = Image.frombytes('L', img_size, raw_data)
     png_file_name = f'{raw_file_name}.png'
-    img.save(os.path.join(TEMP_OUTPUT_PATH, png_file_name))
+    img.save(os.path.join(raw_data_file.temp_folder, png_file_name))
     avg, std = get_image_statistics(raw_data)
     frame_obj = {
         'frame': png_file_name,
@@ -44,20 +43,19 @@ def process_raw_file(raw_data_file):
 
 
 def convert_to_png_and_get_statistics(raw_files):
-    os.mkdir(TEMP_OUTPUT_PATH)
     with Pool(NUM_THREADS) as pool:
         image_statistics = pool.map(process_raw_file, raw_files)
 
     return image_statistics
 
 
-def extract_tar_files(tar_file_path):
+def extract_tar_files(tar_file_path, temp_dir):
     raw_files = []
     tar_file = tarfile.open(tar_file_path, 'r')
     for entry in tar_file:
         raw_file = tar_file.extractfile(entry)
         raw_file.entry_name = entry.name
-        raw_file.temp_folder = 'example_frames_png'
+        raw_file.temp_folder = temp_dir
         raw_files.append(raw_file)
     return tar_file, raw_files
 
@@ -66,20 +64,17 @@ def raw_image_processor(raw_tar_input_path):
     data_files_path = os.path.dirname(raw_tar_input_path)
     tar_name_no_ext = Path(raw_tar_input_path).stem
     extracted_tar_dir_name = os.path.join(data_files_path, tar_name_no_ext)
-    tar_file, raw_files = extract_tar_files(raw_tar_input_path)
-    image_statistics = convert_to_png_and_get_statistics(raw_files)
-    tar_file.close()
-    png_tar_name = f'{extracted_tar_dir_name}_png.tar'
-    make_tarfile(png_tar_name, f'{extracted_tar_dir_name}_png')
+    with tempfile.TemporaryDirectory() as temp_dir:
+        tar_file, raw_files = extract_tar_files(raw_tar_input_path, temp_dir)
+        image_statistics = convert_to_png_and_get_statistics(raw_files)
+        tar_file.close()
+        png_tar_name = f'{extracted_tar_dir_name}_png.tar'
+        make_tarfile(png_tar_name, temp_dir)
     return png_tar_name, image_statistics
 
 
 if __name__ == '__main__':
     start_time = time.time()
-    try:
-        shutil.rmtree(os.path.join(PROJECT_PATH, 'data/example_frames_png'))
-    except:
-        pass
     try:
         os.remove(os.path.join(PROJECT_PATH, 'data/example_frames_png.tar'))
     except:
