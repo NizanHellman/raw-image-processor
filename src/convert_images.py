@@ -2,6 +2,7 @@ import os.path
 import shutil
 import tarfile
 import time
+from multiprocessing.dummy import Pool
 from pathlib import Path
 from PIL import Image
 import numpy
@@ -9,6 +10,7 @@ import numpy
 PROJECT_PATH = os.path.join(os.path.dirname(__file__), '../')
 TEMP_OUTPUT_FOLDER = 'example_frames_png'
 TEMP_OUTPUT_PATH = os.path.join(PROJECT_PATH, 'data', TEMP_OUTPUT_FOLDER)
+NUM_THREADS = 10
 
 
 def get_image_statistics(image):
@@ -26,6 +28,7 @@ def make_tarfile(output_filename, source_dir):
 def process_raw_file(raw_data_file):
     raw_file_name = Path(raw_data_file.entry_name).stem
     raw_data = raw_data_file.read()
+    raw_data_file.close()
     img_size = (1280, 720)
     img = Image.frombytes('L', img_size, raw_data)
     png_file_name = f'{raw_file_name}.png'
@@ -36,33 +39,36 @@ def process_raw_file(raw_data_file):
         'average_pixel_value': avg,
         'std_of_pixel_in_frame': std
     }
+
     return frame_obj
 
 
 def convert_to_png_and_get_statistics(raw_files):
-    image_statistics = []
     os.mkdir(TEMP_OUTPUT_PATH)
-    for raw_file in raw_files:
-        image_statistics.append(process_raw_file(raw_file))
+    with Pool(NUM_THREADS) as pool:
+        image_statistics = pool.map(process_raw_file, raw_files)
 
     return image_statistics
 
 
 def extract_tar_files(tar_file_path):
-    with tarfile.open(tar_file_path, 'r') as tar_file:
-        for entry in tar_file:
-            with tar_file.extractfile(entry) as raw_file:
-                raw_file.entry_name = entry.name
-                raw_file.temp_folder = 'example_frames_png'
-                yield raw_file
+    raw_files = []
+    tar_file = tarfile.open(tar_file_path, 'r')
+    for entry in tar_file:
+        raw_file = tar_file.extractfile(entry)
+        raw_file.entry_name = entry.name
+        raw_file.temp_folder = 'example_frames_png'
+        raw_files.append(raw_file)
+    return tar_file, raw_files
 
 
 def raw_image_processor(raw_tar_input_path):
     data_files_path = os.path.dirname(raw_tar_input_path)
     tar_name_no_ext = Path(raw_tar_input_path).stem
     extracted_tar_dir_name = os.path.join(data_files_path, tar_name_no_ext)
-    raw_files = extract_tar_files(raw_tar_input_path)
+    tar_file, raw_files = extract_tar_files(raw_tar_input_path)
     image_statistics = convert_to_png_and_get_statistics(raw_files)
+    tar_file.close()
     png_tar_name = f'{extracted_tar_dir_name}_png.tar'
     make_tarfile(png_tar_name, f'{extracted_tar_dir_name}_png')
     return png_tar_name, image_statistics
