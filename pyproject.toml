@@ -12,3 +12,4 @@ authors = ["Nizan Hellman <nizan.hell@gmail.com>"]
 python = "^3.10"
 pillow = "^10.1.0"
 numpy = "^1.26.2"
+click = "^8.1.7"
