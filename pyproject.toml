@@ -9,4 +9,4 @@ description = "A tool for processing raw binary image data."
 authors = ["Nizan Hellman <nizan.hell@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.10"
