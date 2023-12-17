@@ -1,11 +1,13 @@
 import os.path
+import sys
 import tarfile
 import tempfile
 import time
+import click
 from dataclasses import dataclass
 from multiprocessing.dummy import Pool
 from pathlib import Path
-from typing import Tuple, Any
+from typing import Tuple
 
 from PIL import Image
 import numpy
@@ -79,6 +81,11 @@ def extract_output_file_path_from_input_path(input_path: str) -> str:
     return output_path
 
 
+@click.command()
+@click.option('--input_path', prompt='path to your raw tar file', help='input raw tar path')
+@click.option('--output_path', prompt='path to your png output tar file', default='', show_default=True, help='output png tar path')
+@click.option('--img_size', prompt='your image size', default=(1280, 720), show_default=True, type=click.Tuple([int, int]), help='image size')
+@click.option('--threads', prompt='number of threads', default=10, show_default=True, type=int, help='number of threads')
 def raw_image_processor(input_path: str, output_path: str = None, img_size: Tuple[int, int] = (1280, 720), threads: int = 10) -> Tuple[str, list]:
     output_path = output_path or extract_output_file_path_from_input_path(input_path)
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -91,13 +98,6 @@ def raw_image_processor(input_path: str, output_path: str = None, img_size: Tupl
 
 if __name__ == '__main__':
     start_time = time.time()
-    project_path = os.path.join(os.path.dirname(__file__), '../')
-    try:
-        os.remove(os.path.join(project_path, 'data/example_frames_png.tar'))
-    except:
-        pass
-    raw_tar_input_path_relative = 'data/example_frames.tar'
-    raw_tar_input_path = os.path.join(project_path, raw_tar_input_path_relative)
-    print(raw_image_processor(raw_tar_input_path))
-
-    print("--- %s seconds ---" % (time.time() - start_time))
+    results = raw_image_processor()
+    sys.stdout.write(f'results\n')
+    sys.stdout.write(f'--- {(time.time() - start_time)} seconds ---\n')
