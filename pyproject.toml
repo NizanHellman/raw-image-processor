@@ -1,0 +1,12 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "raw-image-processor"
+version = "0.1.0"
+description = "A tool for processing raw binary image data."
+authors = ["Nizan Hellman <nizan.hell@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
