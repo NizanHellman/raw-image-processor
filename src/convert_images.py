@@ -66,6 +66,8 @@ def extract_tar_files_and_add_meta_data(tar_file_path: str, temp_dir: str, img_s
     raw_files = []
     tar_file = tarfile.open(tar_file_path, 'r')
     for entry in tar_file:
+        if not entry.name.lower().endswith('.raw'):
+            continue  # Skip entries that do not have a ".raw" extension
         raw_file = RawFile(tar_file=tar_file.extractfile(entry),
                            entry_name=entry.name,
                            temp_dir=temp_dir,
@@ -82,7 +84,7 @@ def extract_output_file_path_from_input_path(input_path: str) -> str:
 
 
 @click.command()
-@click.option('--input_path', prompt='path to your raw tar file', help='input raw tar path')
+@click.option('--input_path', prompt='path to your raw tar file', default='data/example_frames.tar', show_default=True, help='input raw tar path')
 @click.option('--output_path', prompt='path to your png output tar file', default='', show_default=True, help='output png tar path')
 @click.option('--img_size', prompt='your image size', default=(1280, 720), show_default=True, type=click.Tuple([int, int]), help='image size')
 @click.option('--threads', prompt='number of threads', default=10, show_default=True, type=int, help='number of threads')
@@ -97,7 +99,12 @@ def raw_image_processor(input_path: str, output_path: str = None, img_size: Tupl
 
 
 if __name__ == '__main__':
-    start_time = time.time()
-    results = raw_image_processor()
-    sys.stdout.write(f'results\n')
-    sys.stdout.write(f'--- {(time.time() - start_time)} seconds ---\n')
+    try:
+        print("Before function call")
+        start_time = time.time()
+        results = raw_image_processor()
+        print("After function call")
+        click.echo(f'{results}\n')
+        click.echo(f'--- {(time.time() - start_time)} seconds ---\n')
+    except Exception as e:
+        click.echo(f"An error occurred: {e}")

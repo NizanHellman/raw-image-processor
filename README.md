@@ -3,6 +3,6 @@ raw-image-processor is a versatile tool designed for processing raw binary image
 
 ## TODO
 - Example
-- Data validation
 - Tests
-- CMD - Click
+- README
+- CMD - understand why print is not working after click
