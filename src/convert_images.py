@@ -1,8 +1,7 @@
+import json
 import os.path
-import sys
 import tarfile
 import tempfile
-import time
 import click
 from dataclasses import dataclass
 from multiprocessing.dummy import Pool
@@ -83,11 +82,6 @@ def extract_output_file_path_from_input_path(input_path: str) -> str:
     return output_path
 
 
-@click.command()
-@click.option('--input_path', prompt='path to your raw tar file', default='data/example_frames.tar', show_default=True, help='input raw tar path')
-@click.option('--output_path', prompt='path to your png output tar file', default='', show_default=True, help='output png tar path')
-@click.option('--img_size', prompt='your image size', default=(1280, 720), show_default=True, type=click.Tuple([int, int]), help='image size')
-@click.option('--threads', prompt='number of threads', default=10, show_default=True, type=int, help='number of threads')
 def raw_image_processor(input_path: str, output_path: str = None, img_size: Tuple[int, int] = (1280, 720), threads: int = 10) -> Tuple[str, list]:
     output_path = output_path or extract_output_file_path_from_input_path(input_path)
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -98,13 +92,19 @@ def raw_image_processor(input_path: str, output_path: str = None, img_size: Tupl
     return output_path, image_statistics
 
 
+@click.command()
+@click.option('--input_path', prompt='path to your raw tar file', default='data/example_frames.tar', show_default=True, help='input raw tar path')
+@click.option('--output_path', prompt='path to your png output tar file', default='', show_default=True, help='output png tar path')
+@click.option('--img_size', prompt='your image size', default=(1280, 720), show_default=True, type=click.Tuple([int, int]), help='image size')
+@click.option('--threads', prompt='number of threads', default=10, show_default=True, type=int, help='number of threads')
+def raw_image_processor_wrapper(input_path: str, output_path: str = None, img_size: Tuple[int, int] = (1280, 720), threads: int = 10) -> None:
+    output_path, image_statistics = raw_image_processor(input_path, output_path, img_size, threads)
+    print(f'Output path: {output_path}')
+    print(f'Image statistics: {json.dumps(image_statistics, indent=2)}')
+
+
 if __name__ == '__main__':
     try:
-        print("Before function call")
-        start_time = time.time()
-        results = raw_image_processor()
-        print("After function call")
-        click.echo(f'{results}\n')
-        click.echo(f'--- {(time.time() - start_time)} seconds ---\n')
+        results = raw_image_processor_wrapper()
     except Exception as e:
         click.echo(f"An error occurred: {e}")
