@@ -15,18 +15,18 @@ To use `raw-image-processor`, import the `raw_image_processor` function and call
 
 ```python
 import json
-from raw_image_processor.convert_images import raw_image_processor
+from raw_image_processor import raw_image_processor
 
-def my_func():
-    input_path = 'path/to/raw_images.tar'  # Replace with your input path
-    output_path, frame_statistics = raw_image_processor(
-        input_path=input_path,
-        output_path='path/to/output_images.tar',  # Optional, defaults to the same location as input
-        img_size=(1280, 720),  # Optional, defaults to (1280, 720)
-        threads=10  # Optional, defaults to 10
-    )
+
+def convert_raw_to_png():
+    input_path = '/Users/nhellman/nizan/raw-image-processor/data/example_frames.tar'
+    output_path, frame_statistics = raw_image_processor(input_path=input_path)
     print(f'Output path: {output_path}')
     print(f'Image statistics:\n{json.dumps(frame_statistics, indent=2)}')
+
+
+if __name__ == '__main__':
+    convert_raw_to_png()
 ```
 ### Inputs:
 * `input_path` (required): Path to the raw tar file.
