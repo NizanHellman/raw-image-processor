@@ -6,8 +6,9 @@ from src.convert_images import raw_image_processor
 
 class TestRawImageProcessor(unittest.TestCase):
     def test_raw_image_processor(self):
-        input_path = 'data/test_example_frames.tar'
-        expected_output_path = 'data/test_example_frames_png.tar'
+        base_name = os.path.dirname(__file__)
+        input_path = os.path.join(base_name, 'data/test_example_frames.tar')
+        expected_output_path = os.path.join(base_name, 'data/test_example_frames_png.tar')
         expected_frame_statistics = [
             {
                 "frame": "Frame_0071_ts_34710.000000.png",
