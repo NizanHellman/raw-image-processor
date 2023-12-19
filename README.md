@@ -15,7 +15,7 @@ To use `raw-image-processor`, import the `raw_image_processor` function and call
 
 ```python
 import json
-from src.convert_images import raw_image_processor
+from raw_image_processor.convert_images import raw_image_processor
 
 def my_func():
     input_path = 'path/to/raw_images.tar'  # Replace with your input path
@@ -101,7 +101,7 @@ poetry run convert-images
 ```
 or
 ```bash
-poetry run python src/convert_images.py
+poetry run python raw_image_processor/convert_images.py
 ```
 * The CLI is interactive and will prompt you for the required inputs.
 * The output will be displayed in the terminal.

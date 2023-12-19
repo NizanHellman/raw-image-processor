@@ -4,10 +4,10 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "raw-image-processor"
-version = "0.1.1"
+version = "0.1.2"
 description = "A tool for processing raw binary image data."
 authors = ["Nizan Hellman <nizan.hell@gmail.com>"]
-packages = [{include = "src"}]
+packages = [{include = "raw_image_processor"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"

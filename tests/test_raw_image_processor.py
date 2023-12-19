@@ -1,7 +1,6 @@
 import os
 import unittest
-
-from src.convert_images import raw_image_processor
+from raw_image_processor.convert_images import raw_image_processor
 
 
 class TestRawImageProcessor(unittest.TestCase):
