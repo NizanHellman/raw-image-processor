@@ -97,6 +97,10 @@ poetry run pytest
 
 ### Run with CLI (Interactive)
 ```bash
+poetry run convert-images
+```
+or
+```bash
 poetry run python src/convert_images.py
 ```
 * The CLI is interactive and will prompt you for the required inputs.
