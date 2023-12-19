@@ -19,7 +19,7 @@ from raw_image_processor import raw_image_processor
 
 
 def convert_raw_to_png():
-    input_path = '/Users/nhellman/nizan/raw-image-processor/data/example_frames.tar'
+    input_path = 'path/to/your/example_frames.tar'
     output_path, frame_statistics = raw_image_processor(input_path=input_path)
     print(f'Output path: {output_path}')
     print(f'Image statistics:\n{json.dumps(frame_statistics, indent=2)}')
