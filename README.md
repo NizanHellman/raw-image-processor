@@ -110,10 +110,3 @@ poetry run python raw_image_processor/convert_images.py
 ```
 * The CLI is interactive and will prompt you for the required inputs.
 * The output will be displayed in the terminal.
-
-
-## TODO
-
-- **Git Workflow for Automated Tests:**
-  - Implement a CI workflow to run tests automatically for every commit.
-  - Configure the workflow to execute your test suite on each pull request and push event.
