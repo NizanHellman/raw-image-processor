@@ -14,7 +14,7 @@ import numpy
 
 @dataclass
 class RawFile:
-    tar_file: tarfile.ExFileObject
+    tar_file: any
     entry_name: str
     temp_dir: str
     img_size: tuple[int, int]
@@ -83,13 +83,30 @@ def extract_output_file_path_from_input_path(input_path: str) -> str:
 
 
 def raw_image_processor(input_path: str, output_path: str = None, img_size: Tuple[int, int] = (1280, 720), threads: int = 10) -> Tuple[str, list]:
-    output_path = output_path or extract_output_file_path_from_input_path(input_path)
-    with tempfile.TemporaryDirectory() as temp_dir:
-        tar_file, raw_files = extract_tar_files_and_add_meta_data(input_path, temp_dir, img_size)
-        image_statistics = convert_to_png_and_get_statistics(raw_files, threads)
-        tar_file.close()
-        make_tarfile(output_path, temp_dir)
-    return output_path, image_statistics
+    """
+    A tool for processing archived raw binary image data.
+
+    :param input_path: Path to the raw tar file.
+    :param output_path: Output path for the PNG tar file. Defaults to the same location as the input.
+    :param img_size: Tuple specifying the image size. Defaults to (1280, 720).
+    :param threads: Number of threads the program will use. Defaults to 10.
+
+    :return: A tuple containing the output path of the PNG tar file and a list of frame statistics.
+
+    :exception: If an error occurs during the processing, an exception is raised with an error message.
+
+    """
+    try:
+        output_path = output_path or extract_output_file_path_from_input_path(input_path)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            tar_file, raw_files = extract_tar_files_and_add_meta_data(input_path, temp_dir, img_size)
+            image_statistics = convert_to_png_and_get_statistics(raw_files, threads)
+            tar_file.close()
+            make_tarfile(output_path, temp_dir)
+        return output_path, image_statistics
+    except Exception as ex:
+        error_message = f"An error occurred: {str(ex)}"
+        raise Exception(error_message)
 
 
 @click.command()
